@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fire Chars</title>
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        background: black;
+      }
+      #fire {
+        color: white;
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
+        line-height: 1.5;
+        position: absolute;
+        bottom: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="element1"></div>
+    <div class="element2"></div>
+    <pre id="fire"></pre>
+    <script>
+      let width = 145;
+      let height = 28;
+
+      (fireChars = " ,;+ltgti!lI?/\\|)(1}{][rcvzjftJUOQocxfXhqwWB8&%$#@"),
+        (maxCharIndex = fireChars.length);
+
+      let firePixelsArray = [];
+
+      for (let i = 0; i < width * height + 1; i++) {
+        firePixelsArray[i] = 0;
+      }
+
+      generateFire = () => {
+        let fireString = "";
+
+        for (let i = 0; i < width; i++) {
+          let randomCol = Math.floor(Math.random() * width);
+          let index = randomCol + width * (height - 1);
+          firePixelsArray[index] = Math.floor(Math.random() * maxCharIndex);
+        }
+
+        for (let i = 0; i < width; i++) {
+          let randomCol = Math.floor(Math.random() * width);
+          let index = randomCol + width * (height - 1);
+          firePixelsArray[index] = 0;
+        }
+
+        for (let i = 0; i < width * (height - 1); i++) {
+          let averageValue =
+            (firePixelsArray[i] +
+              firePixelsArray[i + 1] +
+              firePixelsArray[i + width] +
+              firePixelsArray[i + width + 1]) /
+            4;
+
+          firePixelsArray[i] = Math.floor(averageValue);
+
+          fireString += fireChars[firePixelsArray[i]];
+          if (i % width === 0) fireString += `\n`;
+        }
+
+        document.getElementById("fire").innerText = fireString;
+        setTimeout(generateFire, 30);
+      };
+
+      generateFire();
+    </script>
+  </body>
+</html>
