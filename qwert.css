@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+*, *::before, *::after {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+img {
+    max-width: 100%;
+}
+
+body {
+    background-color: #fbfbfb;
+}
+
+header {
+    background-color: #222222;
+    display: flex;
+    pad: 0 1rem;
+    box-shadow: 0 0 10px black;
+}
+
+header a.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+header a.logo img {
+    width: 1.75rem;
+    padding-left: 0.5rem;
+    padding-right: 0.15rem;
+}
+
+nav {
+    z-index: 9;
+    margin: 0 auto;
+}
+
+nav li {
+    position: relative;
+    list-style-type: none;
+    white-space: nowrap;
+    cursor: pointer;
+    text-transform: capitalize;
+    transition: all ease-in 300ms;
+    font-size: 1em;
+    padding: 0.25em 0.5em;
+}
+
+nav li a {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+nav li:hover {
+    background-color: #3d3d3d;
+    text-shadow: 0 10px 10px #222222;
+}
+
+nav li.top-menu {
+    display: inline-block;
+    padding: 0.3em 1em;
+}
+
+nav li.top-menu ul {
+    display: none;
+    position: absolute;
+    background-color: #222222;
+}
+
+nav li:hover>ul {
+    display: block;
+}
+
+nav ul.sub-menu {
+    top: 100%;
+    left: 0;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    box-shadow: 0 0 10px black;
+}
+
+nav ul.sub-menu .sub-menu {
+    top: -0.5em;
+    left: 100%;
+}
+
+nav ul.sub-menu li {
+    pad: 0.2em 1.5em;
+}
+
+nav li.divider {
+    padding: 0;
+    border-top: 1px solid #343434;
+    cursor: default;
+}
+
+nav li.divider:hover {
+    background-color: transparent;
+}
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+section {
+    margin: 3rem 0;
+}
+
+h1 {
+    font-size: 5rem;
+}
+
+p {
+    margin-top: 1rem;
+    color: #86868b;
+}
