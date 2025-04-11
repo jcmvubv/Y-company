@@ -1,110 +1,204 @@
-// Function to call generate calendar on load
-window.onload = function () {
-    generateCalendar();
+const rulesButton = document.getElementById("rules-btn");
+const closeButton = document.getElementById("close-btn");
+const rules = document.getElementById("rules");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const color = getComputedStyle(document.documentElement).getPropertyValue(
+  "--button-color"
+);
+const secondaryColor = getComputedStyle(
+  document.documentElement
+).getPropertyValue("--sidebar-color");
+let score = 0;
+const brickRowCount = 9;
+const brickColumnCount = 5;
+
+// Reference: https://stackoverflow.com/questions/34772957/how-to-make-canvas-responsive
+// https://stackoverflow.com/questions/39771732/drawing-to-responsive-canvas-that-is-100-width-and-height
+const heightRatio = 0.75;
+canvas.height = canvas.width * heightRatio;
+ctx.canvas.width = 800;
+ctx.canvas.height = ctx.canvas.width * heightRatio;
+
+// Elements
+const ball = {
+  x: canvas.width / 2,
+  y: canvas.height / 2,
+  size: 10,
+  speed: 4,
+  dx: 4,
+  dy: -4,
 };
 
-// Function to generate the calendar
-function generateCalendar() {
-    const calendar = document.getElementById('calendar');
+const paddle = {
+  x: canvas.width / 2 - 40,
+  y: canvas.height - 20,
+  w: 80,
+  h: 10,
+  speed: 8,
+  dx: 0,
+};
 
-    // Create a new Date object to get the current date, month, and year
-    const currentDate = new Date();
-    const month = currentDate.getMonth();
-    const year = currentDate.getFullYear();
+const brickInfo = {
+  w: 70,
+  h: 20,
+  padding: 10,
+  offsetX: 45,
+  offsetY: 60,
+  visible: true,
+};
 
-    // Calculate the first and last day of the month
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-
-    // Calculate the day of the week of the first day of the month
-    const firstDayOfWeek = firstDayOfMonth.getDay();
-    const totalDays = lastDayOfMonth.getDate();
-
-    // Add blank div elements for the days before the first day of the month
-    for (let i = 0; i < firstDayOfWeek; i++) {
-        let blankDay = document.createElement("div");
-        calendar.appendChild(blankDay);
-    }
-
-    // Add div elements for each day of the month
-    for (let day = 1; day <= totalDays; day++) {
-        let daySquare = document.createElement("div");
-        daySquare.className = "calendar-day";
-        daySquare.textContent = day;
-        daySquare.id = `day-${day}`;
-        calendar.appendChild(daySquare);
-    }
+const bricks = [];
+for (let i = 0; i < brickRowCount; i++) {
+  bricks[i] = [];
+  for (let j = 0; j < brickColumnCount; j++) {
+    const x = i * (brickInfo.w + brickInfo.padding) + brickInfo.offsetX;
+    const y = j * (brickInfo.h + brickInfo.padding) + brickInfo.offsetY;
+    bricks[i][j] = { x, y, ...brickInfo };
+  }
 }
 
-// Function to show the add task modal
-function showAddTaskModal() {
-    document.getElementById('addTaskModal').style.display = 'block';
+// Create Elements
+function drawBall() {
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.size, 0, Math.PI * 2);
+  ctx.fillStyle = secondaryColor;
+  ctx.fill();
+  ctx.closePath();
 }
 
-// Function to close the add task modal
-function closeAddTaskModal() {
-    document.getElementById('addTaskModal').style.display = 'none';
+function drawPaddle() {
+  ctx.beginPath();
+  ctx.rect(paddle.x, paddle.y, paddle.w, paddle.h);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.closePath();
 }
 
-// Function to delete a task
-function deleteTask(taskElement) {
-    // Confirmation dialog to confirm deletion
-    if (confirm("Are you sure you want to delete this task?")) {
-        // If user confirms, remove the task element from its parent
-        taskElement.parentNode.removeChild(taskElement);
-    }
+function drawScore() {
+  ctx.font = '20px "Balsamiq Sans"';
+  ctx.fillText(`Score: ${score}`, canvas.width - 100, 30);
 }
 
-// Function to edit a task
-function editTask(taskElement) {
-    // Prompt user to edit the task description, with current description as default
-    const newTaskDesc = prompt("Edit your task:", taskElement.textContent);
-    // Check if user entered a new task description and it's not empty
-    if (newTaskDesc !== null & newTaskDesc.trim() !== "") {
-        // Update task element's text content with the new description
-        taskElement.textContent = newTaskDesc;
-    }
+function drawBricks() {
+  bricks.forEach((column) => {
+    column.forEach((brick) => {
+      ctx.beginPath();
+      ctx.rect(brick.x, brick.y, brick.w, brick.h);
+      ctx.fillStyle = brick.visible ? color : "transparent";
+      ctx.fill();
+      ctx.closePath();
+    });
+  });
 }
 
-// Function to add a task
-function addTask() {
-    // Get task date and description from input fields
-    const taskDate = new Date(document.getElementById('task-date').value);
-    const taskDesc = document.getElementById('task-desc').value.trim();
+function draw() {
+  // clear
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // draw
+  drawBall();
+  drawPaddle();
+  drawScore();
+  drawBricks();
+}
 
-    // Validate task date and description
-    if (taskDesc && !isNaN(taskDate.getDate())) {
-        // Get calendar days
-        const calendarDays = document.getElementById('calendar').children;
-        // Iterate through calendar days
-        for (let i = 0; i < calendarDays.length; i++) {
-            const day = calendarDays[i];
-            // Check if day matches task date
-            if (parseInt(day.textContent) === taskDate.getDate()) {
-                // Create task element
-                const taskElement = document.createElement("div");
-                taskElement.className = "task";
-                taskElement.textContent = taskDesc;
+// Animate Elements
+function movePaddle() {
+  paddle.x += paddle.dx;
+  if (paddle.x + paddle.w > canvas.width) paddle.x = canvas.width - paddle.w;
+  if (paddle.x < 0) paddle.x = 0;
+}
 
-                // Add event listener for right-click to delete task
-                taskElement.addEventListener("contextmenu", function (event) {
-                    event.preventDefault(); // Prevent default context menu
-                    deleteTask(taskElement); // Call deleteTask function
-                });
-
-                // Add event listener for regular click to edit task
-                taskElement.addEventListener('click', function () {
-                    editTask(taskElement); // Call editTask function
-                });
-
-                // Append task element to day element
-                day.appendChild(taskElement);
-                break;
-            }
+function moveBall() {
+  ball.x += ball.dx;
+  ball.y += ball.dy;
+  // wall collision
+  if (ball.x + ball.size > canvas.width || ball.x - ball.size < 0) {
+    // right and left
+    ball.dx *= -1;
+  }
+  if (ball.y + ball.size > canvas.height || ball.y - ball.size < 0) {
+    // top and bottom
+    ball.dy *= -1;
+  }
+  // paddle
+  if (
+    ball.x - ball.size > paddle.x &&
+    ball.x + ball.size < paddle.x + paddle.w &&
+    ball.y + ball.size > paddle.y
+  ) {
+    ball.dy = -ball.speed;
+  }
+  // bricks
+  bricks.forEach((column) => {
+    column.forEach((brick) => {
+      if (brick.visible) {
+        if (
+          ball.x - ball.size > brick.x && // left brick side check
+          ball.x + ball.size < brick.x + brick.w && // right brick side check
+          ball.y + ball.size > brick.y && // top brick side check
+          ball.y - ball.size < brick.y + brick.h // bottom brick side check
+        ) {
+          ball.dy *= -1;
+          brick.visible = false;
+          increaseScore();
         }
-        closeAddTaskModal(); // Close add task modal
-    } else {
-        // Alert if invalid date or task description
-        alert("Please enter a valid date and task description!");
-    }
+      }
+    });
+  });
+  // game over
+  if (ball.y + ball.size > canvas.height) {
+    showAllBricks();
+    score = 0;
+  }
 }
+
+function increaseScore() {
+  score++;
+  if (score % (brickRowCount * brickRowCount) === 0) {
+    // no remainder
+    showAllBricks();
+  }
+}
+
+function showAllBricks() {
+  bricks.forEach((column) => {
+    column.forEach((brick) => (brick.visible = true));
+  });
+}
+
+// Handle Key Events
+function keyDown(e) {
+  if (e.key === "Right" || e.key === "ArrowRight") paddle.dx = paddle.speed;
+  else if (e.key === "Left" || e.key === "ArrowLeft") paddle.dx = -paddle.speed;
+}
+
+function keyUp(e) {
+  if (
+    e.key === "Right" ||
+    e.key === "ArrowRight" ||
+    e.key === "Left" ||
+    e.key === "ArrowLeft"
+  ) {
+    paddle.dx = 0;
+  }
+}
+
+// Update Canvas
+function update() {
+  // update
+  movePaddle();
+  moveBall();
+  // draw
+  draw();
+  requestAnimationFrame(update);
+}
+
+// Event Listeners
+document.addEventListener("keydown", keyDown);
+document.addEventListener("keyup", keyUp);
+rulesButton.addEventListener("click", () => rules.classList.add("show"));
+closeButton.addEventListener("click", () => rules.classList.remove("show"));
+
+// Init
+update();
