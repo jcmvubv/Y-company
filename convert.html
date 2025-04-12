@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>محول العملات</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+      padding: 40px;
+      direction: rtl;
+    }
+    h1 {
+      color: #333;
+    }
+    select, input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+    #result {
+      font-size: 20px;
+      margin-top: 20px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💰 محول العملات</h1>
+
+  <input type="number" id="amount" placeholder="أدخل المبلغ">
+  <br>
+
+  من:
+  <select id="fromCurrency">
+    <option value="USD">دولار</option>
+    <option value="EUR">يورو</option>
+    <option value="EGP">جنيه</option>
+  </select>
+
+  إلى:
+  <select id="toCurrency">
+    <option value="USD">دولار</option>
+    <option value="EUR">يورو</option>
+    <option value="EGP">جنيه</option>
+  </select>
+
+  <br>
+  <button onclick="convert()">🔄 تحويل</button>
+
+  <div id="result"></div>
+
+  <script>
+    const rates = {
+      USD: { USD: 1,    EUR: 0.91, EGP: 48.0 },
+      EUR: { USD: 1.1,  EUR: 1,    EGP: 52.5 },
+      EGP: { USD: 0.021, EUR: 0.019, EGP: 1 }
+    };
+
+    function convert() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+
+      if (isNaN(amount)) {
+        document.getElementById('result').innerText = "من فضلك أدخل مبلغ صحيح.";
+        return;
+      }
+
+      const rate = rates[from][to];
+      const result = amount * rate;
+
+      document.getElementById('result').innerText =
+        `${amount} ${from} = ${result.toFixed(2)} ${to}`;
+    }
+  </script>
+
+</body>
+</html>
