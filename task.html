@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>منظم المهام</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+      padding: 40px;
+      direction: rtl;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #fff;
+      margin: 8px auto;
+      padding: 10px;
+      width: 300px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    li.completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📋 منظم المهام اليومي</h1>
+  <input type="text" id="taskInput" placeholder="اكتب المهمة هنا">
+  <button onclick="addTask()">➕ إضافة</button>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    const taskList = document.getElementById("taskList");
+
+    function loadTasks() {
+      const saved = localStorage.getItem("tasks");
+      if (saved) taskList.innerHTML = saved;
+    }
+
+    function saveTasks() {
+      localStorage.setItem("tasks", taskList.innerHTML);
+    }
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const task = input.value.trim();
+      if (task === "") return;
+
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <span onclick="toggleComplete(this)">${task}</span>
+        <button onclick="removeTask(this)">🗑️</button>
+      `;
+      taskList.appendChild(li);
+      input.value = "";
+      saveTasks();
+    }
+
+    function removeTask(btn) {
+      btn.parentElement.remove();
+      saveTasks();
+    }
+
+    function toggleComplete(span) {
+      span.parentElement.classList.toggle("completed");
+      saveTasks();
+    }
+
+    loadTasks();
+  </script>
+
+</body>
+</html>
